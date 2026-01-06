@@ -1,36 +1,62 @@
-import { generateText } from "ai";
-import { google } from "@ai-sdk/google";
-
 import { db } from "@/firebase/admin";
 import { getRandomInterviewCover } from "@/lib/utils";
 
 export async function POST(request: Request) {
   const { type, role, level, techstack, amount, userid } = await request.json();
 
+  const apiKey = process.env.GROQ_API_KEY;
+  console.log("GROQ_API_KEY present:", !!apiKey);
+  console.log("Request body:", { type, role, level, techstack, amount, userid });
+
   try {
-    const { text: questions } = await generateText({
-      model: google("gemini-2.0-flash-001"),
-      prompt: `Prepare questions for a job interview.
-        The job role is ${role}.
-        The job experience level is ${level}.
-        The tech stack used in the job is: ${techstack}.
-        The focus between behavioural and technical questions should lean towards: ${type}.
-        The amount of questions required is: ${amount}.
-        Please return only the questions, without any additional text.
-        The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
-        Return the questions formatted like this:
-        ["Question 1", "Question 2", "Question 3"]
-        
-        Thank you! <3
-    `,
+    console.log("About to call Groq API directly");
+    
+    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "user",
+            content: `Generate 5 interview questions for a ${role} with ${level} level experience in ${techstack}. Focus on ${type} questions. Return only the questions as a numbered list.`,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
     });
+
+    console.log("Groq API response status:", groqResponse.status);
+    const groqData = await groqResponse.json();
+    console.log("Groq API response:", JSON.stringify(groqData, null, 2));
+
+    if (!groqResponse.ok) {
+      throw new Error(`Groq API error: ${groqData.error?.message || "Unknown error"}`);
+    }
+
+    const questions = groqData.choices[0]?.message?.content || "";
+    console.log("Extracted questions:", questions);
+
+    if (!questions || questions.trim() === "") {
+      console.log("Questions empty or falsy");
+      return Response.json(
+        { success: false, error: "No questions generated" },
+        { status: 500 }
+      );
+    }
+
+    console.log("Questions validation passed, saving to Firestore");
 
     const interview = {
       role: role,
       type: type,
       level: level,
       techstack: techstack.split(","),
-      questions: JSON.parse(questions),
+      questions: questions,
       userId: userid,
       finalized: true,
       coverImage: getRandomInterviewCover(),
@@ -39,10 +65,20 @@ export async function POST(request: Request) {
 
     await db.collection("interviews").add(interview);
 
-    return Response.json({ success: true }, { status: 200 });
+    return Response.json({ 
+      success: true,
+      data: {
+        questions: questions,
+        interviewId: interview.userId,
+        role: role,
+        level: level,
+        type: type
+      }
+    }, { status: 200 });
   } catch (error) {
-    console.error("Error:", error);
-    return Response.json({ success: false, error: error }, { status: 500 });
+    console.error("Error in Groq API call:", error);
+    console.error("Error type:", error instanceof Error ? error.message : "Unknown");
+    return Response.json({ success: false, error: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
 
