@@ -10,6 +10,15 @@ interface Feedback {
   strengths: string[];
   areasForImprovement: string[];
   finalAssessment: string;
+  questionInsights?: Array<{
+    question: string;
+    rating: number;
+    answerSummary: string;
+    suggestion: string;
+  }>;
+  summary?: string;
+  nextSteps?: string[];
+  transcript?: { role: string; content: string }[];
   createdAt: string;
 }
 
@@ -29,6 +38,7 @@ interface CreateFeedbackParams {
   interviewId: string;
   userId: string;
   transcript: { role: string; content: string }[];
+  questions: string[];
   feedbackId?: string;
 }
 

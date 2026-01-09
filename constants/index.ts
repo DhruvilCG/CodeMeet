@@ -187,6 +187,18 @@ export const feedbackSchema = z.object({
   strengths: z.array(z.string()),
   areasForImprovement: z.array(z.string()),
   finalAssessment: z.string(),
+  questionInsights: z
+    .array(
+      z.object({
+        question: z.string(),
+        rating: z.number(),
+        answerSummary: z.string(),
+        suggestion: z.string(),
+      })
+    )
+    .max(10),
+  summary: z.string(),
+  nextSteps: z.array(z.string()).max(5),
 });
 
 export const interviewCovers = [

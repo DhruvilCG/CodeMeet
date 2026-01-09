@@ -61,6 +61,13 @@ const Feedback = async ({ params }: RouteParams) => {
 
       <p>{feedback?.finalAssessment}</p>
 
+      {feedback?.summary && (
+        <div className="flex flex-col gap-2 p-4 rounded-2xl bg-white/5 border border-white/10">
+          <h3 className="text-xl font-semibold">Summary</h3>
+          <p className="text-light-100">{feedback.summary}</p>
+        </div>
+      )}
+
       {/* Interview Breakdown */}
       <div className="flex flex-col gap-4">
         <h2>Breakdown of the Interview:</h2>
@@ -73,6 +80,23 @@ const Feedback = async ({ params }: RouteParams) => {
           </div>
         ))}
       </div>
+
+      {feedback?.questionInsights && feedback.questionInsights.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <h3 className="text-xl font-semibold">Question-by-Question</h3>
+          {feedback.questionInsights.map((item, idx) => (
+            <div
+              key={idx}
+              className="p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-2"
+            >
+              <p className="font-semibold">Q{idx + 1}: {item.question}</p>
+              <p className="text-sm text-primary-200 font-semibold">Rating: {item.rating}/100</p>
+              <p className="text-sm text-light-100">Answer: {item.answerSummary}</p>
+              <p className="text-sm text-light-100">Suggestion: {item.suggestion}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="flex flex-col gap-3">
         <h3>Strengths</h3>
@@ -91,6 +115,17 @@ const Feedback = async ({ params }: RouteParams) => {
           ))}
         </ul>
       </div>
+
+      {feedback?.nextSteps && feedback.nextSteps.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <h3>Next Steps</h3>
+          <ul>
+            {feedback.nextSteps.map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="buttons">
         <Button className="btn-secondary flex-1">
