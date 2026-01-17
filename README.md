@@ -2,12 +2,9 @@
 
 > **A powerful AI-powered mock interview platform for conducting technical interviews with real-time video calls, code collaboration, and automated testing**
 
-[![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D18.17.0-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/typescript-5.0+-blue)](https://www.typescriptlang.org)
 [![Next.js](https://img.shields.io/badge/nextjs-14.2-black)](https://nextjs.org)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-
-![Demo App](/public/screenshot-for-readme.png)
 
 ---
 
