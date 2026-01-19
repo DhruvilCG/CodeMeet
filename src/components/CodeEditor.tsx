@@ -151,7 +151,7 @@ function CodeEditor() {
       if (allPassed) {
         toast.success("✅ All tests passed!");
       } else if (anyPassed) {
-        toast.warning("⚠️ Some tests passed, but not all.");
+        toast("⚠️ Some tests passed, but not all.");
       } else {
         toast.error("❌ All tests failed. Please fix your solution.");
       }
@@ -177,7 +177,7 @@ function CodeEditor() {
 
     // Check if tests have been run
     if (testResults.length === 0) {
-      toast.warning("⚠️ Please run tests before submitting");
+      toast("⚠️ Please run tests before submitting");
       return;
     }
 
